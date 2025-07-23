@@ -8,7 +8,7 @@ import numpy as np
 # === Config ===
 INPUT_DIR = "data/"
 OUTPUT_VIDEO = "outputs/smart_reel.mp4"
-TARGET_RES = (1280, 720)  # width, height
+TARGET_RES = (720, 1280)  # width, height - vertical phone format (9:16)
 TARGET_DURATION = 10.0  # seconds for final highlight reel
 CLIP_DURATION = 3.5  # seconds per input clip (3-4s as mentioned in README)
 

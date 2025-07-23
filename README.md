@@ -10,7 +10,7 @@ This project is a smart video highlight tool that uses **AI face detection** to 
 - ✂️ **Smart Cropping:** Centers the frame around the most prominent face with stabilized tracking
 - 💬 **Dynamic Text Placement:** Automatically places captions above or below faces with fixed positioning per clip
 - 🎞️ **Video Stitching:** Combines multiple 3-4s clips into a single 10s highlight reel
-- 📐 **Standard Output:** 1280×720 resolution
+- 📐 **Standard Output:** 720×1280 resolution (vertical 9:16 phone format)
 - 🎯 **Multi-Format Support:** Handles MP4, MOV, and AVI input files
 - ⚙️ **Modular Code:** Python-based, easily extendable
 - 🛡️ **Stable Processing:** Face detection smoothing eliminates glitching
@@ -128,7 +128,7 @@ moviepy         # Video assembly (legacy - now using OpenCV)
 7. **Video Assembly:** Uses OpenCV VideoWriter with mp4v codec for compatibility
 
 ### Key Configuration
-- **Target Resolution:** 1280×720 (configurable in source files)
+- **Target Resolution:** 720×1280 - vertical phone format (configurable in source files)
 - **Clip Duration:** 3.5 seconds per input video for highlight reels
 - **Final Duration:** Exactly 10 seconds for highlight reels
 - **Text Styling:** White text on black background with padding
@@ -189,7 +189,7 @@ Most AI video editors suffer from poor face handling - they either crop faces ou
 - ✅ Always keeps faces properly centered and visible
 - ✅ Intelligently places text to avoid covering faces
 - ✅ Eliminates glitching with smoothed face detection
-- ✅ Maintains professional video quality at 1280×720
+- ✅ Maintains professional video quality at 720×1280 (vertical phone format)
 - ✅ Provides both single-video and multi-clip workflows
 - ✅ Offers fast, reliable installation via conda
 - ✅ Uses stable OpenCV backend for maximum compatibility
