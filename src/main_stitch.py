@@ -12,9 +12,46 @@ TARGET_RES = (1280, 720)  # width, height
 TARGET_DURATION = 10.0  # seconds for final highlight reel
 CLIP_DURATION = 3.5  # seconds per input clip (3-4s as mentioned in README)
 
+def add_text_overlay_fixed(frame, text, position='top'):
+    """
+    Add text overlay with fixed position to prevent jumping
+    """
+    if text is None or text == "":
+        return frame
+    
+    height, width = frame.shape[:2]
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    font_scale = 1.2
+    font_thickness = 2
+    text_color = (255, 255, 255)  # White text
+    bg_color = (0, 0, 0)  # Black background
+    
+    # Get text size
+    text_size = cv2.getTextSize(text, font, font_scale, font_thickness)[0]
+    text_width, text_height = text_size
+    
+    # Fixed position based on parameter
+    text_x = (width - text_width) // 2
+    if position == 'bottom':
+        text_y = height - 40
+    else:  # default to top
+        text_y = 60
+    
+    # Draw background rectangle
+    padding = 10
+    cv2.rectangle(frame, 
+                 (text_x - padding, text_y - text_height - padding),
+                 (text_x + text_width + padding, text_y + padding),
+                 bg_color, -1)
+    
+    # Draw text
+    cv2.putText(frame, text, (text_x, text_y), font, font_scale, text_color, font_thickness)
+    
+    return frame
+
 def add_text_overlay(frame, text, face_location=None):
     """
-    Add text overlay dynamically placed to avoid covering faces
+    Add text overlay dynamically placed to avoid covering faces (legacy function)
     """
     if text is None or text == "":
         return frame
@@ -70,6 +107,10 @@ def process_video_clip(input_path, clip_text=None):
     frames_to_extract = min(int(fps * CLIP_DURATION), total_frames)
     frames = []
     
+    # Variables for stabilizing face detection and text placement
+    recent_faces = []  # Store recent face locations for smoothing
+    consistent_text_position = None  # Lock text position for this clip
+    
     frame_count = 0
     while cap.isOpened() and frame_count < frames_to_extract:
         ret, frame = cap.read()
@@ -78,13 +119,28 @@ def process_video_clip(input_path, clip_text=None):
         
         frame_count += 1
         
-        # Detect faces
+        # Detect faces with smoothing
         face_locations = face_recognition.face_locations(frame)
         primary_face = None
         
         if face_locations:
             # Pick the largest face
-            primary_face = max(face_locations, key=lambda box: (box[2] - box[0]) * (box[1] - box[3]))
+            current_face = max(face_locations, key=lambda box: (box[2] - box[0]) * (box[1] - box[3]))
+            recent_faces.append(current_face)
+            
+            # Keep only last 5 face detections for smoothing
+            if len(recent_faces) > 5:
+                recent_faces.pop(0)
+            
+            # Use averaged face position for stability
+            if len(recent_faces) >= 3:  # Wait for 3 detections before processing
+                avg_top = sum(f[0] for f in recent_faces) // len(recent_faces)
+                avg_right = sum(f[1] for f in recent_faces) // len(recent_faces)
+                avg_bottom = sum(f[2] for f in recent_faces) // len(recent_faces)
+                avg_left = sum(f[3] for f in recent_faces) // len(recent_faces)
+                primary_face = (avg_top, avg_right, avg_bottom, avg_left)
+            else:
+                primary_face = current_face
             top, right, bottom, left = primary_face
             
             # Center the crop around the face
@@ -122,9 +178,15 @@ def process_video_clip(input_path, clip_text=None):
             # No face detected — just resize
             processed_frame = cv2.resize(frame, TARGET_RES)
         
+        # Determine consistent text position for this clip
+        if clip_text and consistent_text_position is None and primary_face:
+            height = processed_frame.shape[0]
+            face_center_y = (primary_face[0] + primary_face[2]) // 2
+            consistent_text_position = 'bottom' if face_center_y < height // 2 else 'top'
+        
         # Add text overlay if provided
         if clip_text:
-            processed_frame = add_text_overlay(processed_frame, clip_text, primary_face)
+            processed_frame = add_text_overlay_fixed(processed_frame, clip_text, consistent_text_position)
             
         frames.append(processed_frame)
     
