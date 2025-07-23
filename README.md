@@ -50,9 +50,25 @@ data/input3.mp4
 ```
 
 Run the face-aware stitching script:
-```bash
-python src/main_stitch.py
-```
+  # Activate the environment
+  ```bash
+  source ~/.bash_profile && conda activate face-ai
+  ```
+
+  # For single video processing
+  ```bash
+  python src/main.py
+  ```
+
+  # For multi-clip highlight reel
+  ```bash
+  python src/main_stitch.py
+  ```
+
+  Make sure you have video files in the data/ folder (input.mp4 for single
+  video or input1.mp4, input2.mp4, etc. for multiple clips).
+
+
 Output: `outputs/smart_reel.mp4` (exactly 10 seconds)
 
 ---
