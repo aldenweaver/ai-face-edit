@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  face-editor:
+    build: .
+    container_name: ai-face-editor
+    volumes:
+      # Mount data directory for input videos
+      - ./data:/app/data
+      # Mount outputs directory to get results
+      - ./outputs:/app/outputs
+      # Optional: mount src for development
+      - ./src:/app/src
+    environment:
+      - PYTHONUNBUFFERED=1
+    # Override default command if needed
+    # command: python src/main.py  # For single video processing
+    
+  # Alternative service for single video processing
+  face-editor-single:
+    build: .
+    container_name: ai-face-editor-single
+    volumes:
+      - ./data:/app/data
+      - ./outputs:/app/outputs
+      - ./src:/app/src
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: python src/main.py
+    profiles:
+      - single
+
+  # Development service with shell access
+  face-editor-dev:
+    build: .
+    container_name: ai-face-editor-dev
+    volumes:
+      - ./data:/app/data
+      - ./outputs:/app/outputs
+      - ./src:/app/src
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: /bin/bash
+    stdin_open: true
+    tty: true
+    profiles:
+      - dev

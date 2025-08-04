@@ -19,11 +19,52 @@ This project is a smart video highlight tool that uses **AI face detection** to 
 
 ## 🚀 Quick Start
 
-### Prerequisites
+Choose your preferred installation method:
+
+### Option A: Docker (Recommended - Works on Any Platform)
+
+#### Prerequisites
+- Docker and Docker Compose installed
+
+#### 1. Clone and Prepare
+```bash
+git clone <repository-url>
+cd ai-face-edit-poc
+
+# Create data directory if it doesn't exist
+mkdir -p data outputs
+```
+
+#### 2. Add Your Videos
+Place your video files in the `data/` folder:
+```bash
+data/input1.mp4
+data/input2.mp4
+data/input3.mp4
+# (supports .mp4, .mov, .avi)
+```
+
+#### 3. Run with Docker
+```bash
+# Multi-clip highlight reel (default)
+docker-compose up
+
+# Single video processing
+docker-compose --profile single up face-editor-single
+
+# Development shell access
+docker-compose --profile dev up face-editor-dev
+```
+
+Output videos will appear in the `outputs/` folder.
+
+### Option B: Local Installation (macOS)
+
+#### Prerequisites
 - macOS (tested on macOS 12+)
 - Homebrew package manager
 
-### 1. Install Miniconda (Recommended for Fast Setup)
+#### 1. Install Miniconda (Recommended for Fast Setup)
 ```bash
 # Install miniconda via Homebrew
 brew install miniconda
@@ -36,7 +77,7 @@ conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/ma
 conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
 ```
 
-### 2. Create Environment and Install Dependencies
+#### 2. Create Environment and Install Dependencies
 ```bash
 # Create conda environment with Python 3.10
 conda create -n face-ai python=3.10 -y
@@ -48,15 +89,15 @@ conda activate face-ai
 conda install -c conda-forge opencv face_recognition moviepy -y
 ```
 
-### 3. Prepare Your Videos
+#### 3. Prepare Your Videos
 Place your video files in the `data/` folder:
 
-#### For Single Video Processing:
+**For Single Video Processing:**
 ```bash
 data/input.mp4
 ```
 
-#### For Multi-Clip Highlight Reel:
+**For Multi-Clip Highlight Reel:**
 ```bash
 data/input1.mp4
 data/input2.mp4
@@ -64,22 +105,22 @@ data/input3.mp4
 # (supports .mp4, .mov, .avi)
 ```
 
-### 4. Run the Editor
+#### 4. Run the Editor
 
-#### Activate Environment (each session):
+**Activate Environment (each session):**
 ```bash
 # Source bash profile first (if needed)
 source ~/.bash_profile
 conda activate face-ai
 ```
 
-#### Single Video Processing:
+**Single Video Processing:**
 ```bash
 python src/main.py
 ```
 Output: `outputs/face_cropped_output.mp4`
 
-#### Multi-Clip Highlight Reel:
+**Multi-Clip Highlight Reel:**
 ```bash
 python src/main_stitch.py
 ```
@@ -96,7 +137,10 @@ ai-face-edit-poc/
 ├── src/
 │   ├── main.py         # Single video face cropper
 │   └── main_stitch.py  # Multi-clip highlight reel builder
-├── requirements.txt    # Python dependencies (legacy)
+├── requirements.txt    # Python dependencies
+├── Dockerfile         # Docker container definition
+├── docker-compose.yml # Docker Compose configuration
+├── .dockerignore      # Docker ignore rules
 ├── .gitignore         # Git ignore rules
 ├── CLAUDE.md          # Development documentation
 └── README.md          # This file
@@ -137,6 +181,12 @@ moviepy         # Video assembly (legacy - now using OpenCV)
 ---
 
 ## 🐛 Troubleshooting
+
+### Docker Issues
+- **Docker build fails:** Ensure you have enough disk space (build requires ~2-3GB)
+- **Permission denied:** Make sure Docker has access to the project directory
+- **Slow build:** First build takes time due to compiling face_recognition dependencies
+- **Out of memory:** Increase Docker memory allocation in Docker Desktop settings
 
 ### Installation Issues
 - **Slow pip installation:** Use conda instead - it's much faster for these packages
